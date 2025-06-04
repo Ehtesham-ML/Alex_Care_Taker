@@ -39,6 +39,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 
 with tab1:
     
+
     # File uploader
     uploaded_files = st.file_uploader("Upload your PDF files", type="pdf", accept_multiple_files=True)
     if uploaded_files:
@@ -47,8 +48,8 @@ with tab1:
             with open(file_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
         st.success(f"Uploaded {len(uploaded_files)} PDF(s) to the **input** directory!")
-    
-    with st.expander("📂 View Uploaded PDFs"):
+
+    with st.expander(":open_file_folder: View Uploaded PDFs"):
         pdf_files = [f for f in os.listdir(INPUT_DIR) if f.lower().endswith(".pdf")]
         if pdf_files:
             selected_pdf = st.selectbox("Select a PDF to view", pdf_files)
@@ -66,7 +67,7 @@ with tab1:
             os.system("python pdf_converter.py")
         # st.success("PDFs have been processed! Check the **output** directory.")
 
-    with st.expander("📊 View Converted Excel Files"):
+    with st.expander(":bar_chart: View Converted Excel Files"):
         excel_files = [f for f in os.listdir(OUTPUT_DIR) if f.lower().endswith(".xlsx")]
         if excel_files:
             selected_excel = st.selectbox("Select a converted Excel file to view", excel_files)
@@ -79,6 +80,29 @@ with tab1:
                     st.error(f"Could not read the Excel file: {e}")
         else:
             st.info("No Excel files found in the output directory.")
+           
+    if st.button("Delete Previous Data", type="primary"):
+        import shutil
+
+        # List of directories to clear
+        dirs_to_clear = [INPUT_DIR, OUTPUT_DIR, OUTPUT_ANALYZED_RESULTS]
+
+        try:
+            for directory in dirs_to_clear:
+                if os.path.exists(directory):
+                    shutil.rmtree(directory)
+                    os.makedirs(directory)  # Recreate the folder after deletion
+
+            # Recreate subdirectories under Analyzed Results
+            os.makedirs(OUTPUT_ANALYZED_ATTANDACE, exist_ok=True)
+            os.makedirs(OUTPUT_ANALYZED_BRANCH, exist_ok=True)
+            os.makedirs(OUTPUT_ANALYZED_FILTER, exist_ok=True)
+            os.makedirs(OUTPUT_ANALYZED_MISSING, exist_ok=True)
+            os.makedirs(OUTPUT_ANALYZED_LESS_PAID, exist_ok=True)
+
+            st.success("All previous data and directories have been deleted.")
+        except Exception as e:
+            st.error(f"Error while deleting data: {e}")    
         
 with tab2:
     
